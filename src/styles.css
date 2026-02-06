@@ -1,0 +1,103 @@
+
+/* Gantt chart styles */
+.gantt-cell {
+  min-height: 60px;
+}
+
+.gantt-task {
+  position: absolute;
+  top: 4px;
+  height: 48px;
+  border-radius: 4px;
+  padding: 4px;
+  font-size: 0.75rem;
+  color: white;
+  overflow: hidden;
+  cursor: move;
+  display: flex;
+  align-items: center;
+  z-index: 10;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+}
+
+.gantt-row {
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* Calendar styles */
+.calendar-cell {
+  min-height: 150px;
+  border: 1px solid #e5e7eb;
+  padding: 8px;
+  transition: background-color 0.2s ease;
+}
+
+.task-item {
+  padding: 6px;
+  border-radius: 4px;
+  margin-bottom: 4px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+  cursor: move;
+}
+
+/* Project type colors - synced with tailwind.config.ts */
+.bg-kastbouw {
+  background-color: #3B82F6;
+}
+
+.bg-herstelling {
+  background-color: #EF4444;
+}
+
+.bg-spuiterij {
+  background-color: #F59E0B;
+}
+
+.bg-maatwerk {
+  background-color: #10B981;
+}
+
+.bg-mobiel {
+  background-color: #8B5CF6;
+}
+
+.bg-medisch {
+  background-color: #EC4899;
+}
+
+.bg-tv {
+  background-color: #6366F1;
+}
+
+.bg-leger {
+  background-color: #065F46;
+}
+
+/* Opacity variants for Gantt backgrounds */
+.bg-kastbouw\/10 { background-color: rgba(59, 130, 246, 0.1); }
+.bg-herstelling\/10 { background-color: rgba(239, 68, 68, 0.1); }
+.bg-spuiterij\/10 { background-color: rgba(245, 158, 11, 0.1); }
+.bg-maatwerk\/10 { background-color: rgba(16, 185, 129, 0.1); }
+.bg-mobiel\/10 { background-color: rgba(139, 92, 246, 0.1); }
+.bg-medisch\/10 { background-color: rgba(236, 72, 153, 0.1); }
+.bg-tv\/10 { background-color: rgba(99, 102, 241, 0.1); }
+.bg-leger\/10 { background-color: rgba(6, 95, 70, 0.1); }
+
+/* Hover effects for draggable items */
+[draggable=true]:hover {
+  opacity: 0.8;
+  transform: scale(1.01);
+  transition: all 0.1s ease-in-out;
+}
+
+/* Drag over effect */
+.calendar-cell.drag-over,
+.gantt-cell.drag-over {
+  background-color: rgba(59, 130, 246, 0.1);
+}
+
+/* Highlighted drop target */
+.drag-over {
+  background-color: rgba(59, 130, 246, 0.1) !important;
+  border: 2px dashed #3b82f6 !important;
+}
