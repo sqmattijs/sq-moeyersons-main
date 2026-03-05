@@ -6,14 +6,12 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { CalendarIcon, ChevronLeft, Pencil, Plus, Trash2 } from "lucide-react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { CalendarIcon, ChevronLeft, Pencil, Plus, Trash2, Users2 } from "lucide-react";
 import { format } from "date-fns";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -45,6 +43,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
+import Navbar from "@/components/Navbar";
 import ProjectTaskList from "./ProjectTaskList";
 import { projectTypeLabels } from "@/lib/labels";
 import { PROJECT_TYPE_KEYS } from "@/types";
@@ -66,11 +65,19 @@ export default function ProjectDetail() {
   const [editClient, setEditClient] = useState("");
   const [editDeadline, setEditDeadline] = useState("");
 
+  // Add task dialog state
+  const [addTaskOpen, setAddTaskOpen] = useState(false);
+
   if (!project) {
     return (
-      <div className="p-8 text-center">
-        <h2 className="text-xl mb-4">Project niet gevonden</h2>
-        <Button onClick={() => navigate("/")}>Terug naar dashboard</Button>
+      <div className="min-h-screen flex flex-col bg-gray-50">
+        <Navbar />
+        <main className="flex-1 container py-6">
+          <div className="p-8 text-center">
+            <h2 className="text-xl mb-4">Project niet gevonden</h2>
+            <Button onClick={() => navigate("/")}>Terug naar dashboard</Button>
+          </div>
+        </main>
       </div>
     );
   }
@@ -100,9 +107,9 @@ export default function ProjectDetail() {
 
     toast.success(`Taak "${newTaskTitle}" toegevoegd aan project ${project.title}`);
 
-    // Reset form
     setNewTaskTitle("");
     setNewTaskDescription("");
+    setAddTaskOpen(false);
   };
 
   const openEditDialog = () => {
@@ -148,148 +155,133 @@ export default function ProjectDetail() {
   };
 
   return (
-    <div className="space-y-6">
-      <Button
-        variant="ghost"
-        className="mb-4"
-        onClick={() => navigate("/")}
-      >
-        <ChevronLeft className="h-4 w-4 mr-2" />
-        Terug naar overzicht
-      </Button>
+    <div className="min-h-screen flex flex-col bg-gray-50">
+      <Navbar />
 
-      <div className="flex flex-col md:flex-row gap-8">
-        <div className="flex-1">
-          <Card>
-            <CardHeader>
-              <div className="flex justify-between items-start gap-4">
-                <div>
-                  <CardTitle className="text-2xl">{project.title}</CardTitle>
-                  <CardDescription className="text-sm mt-1">{state.projectTypeConfigs[project.type]?.name ?? project.type}</CardDescription>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Badge>{project.status}</Badge>
-                  <Button variant="outline" size="icon" onClick={openEditDialog}>
-                    <Pencil className="h-4 w-4" />
-                    <span className="sr-only">Project bewerken</span>
+      <main className="flex-1 container py-6">
+        <div className="space-y-6">
+          {/* Header row: back button + actions */}
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <Button variant="ghost" onClick={() => navigate("/")}>
+              <ChevronLeft className="h-4 w-4 mr-2" />
+              Terug naar overzicht
+            </Button>
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={openEditDialog}>
+                <Pencil className="h-4 w-4 mr-2" />
+                Bewerken
+              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="destructive">
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Verwijderen
                   </Button>
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button variant="destructive" size="icon">
-                        <Trash2 className="h-4 w-4" />
-                        <span className="sr-only">Project verwijderen</span>
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Project verwijderen</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Weet je zeker dat je "{project.title}" wilt verwijderen? Dit kan niet ongedaan worden gemaakt. Alle taken binnen dit project worden ook verwijderd.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Annuleren</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                          Verwijderen
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                </div>
-              </div>
-            </CardHeader>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Project verwijderen</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Weet je zeker dat je "{project.title}" wilt verwijderen? Dit kan niet ongedaan worden gemaakt. Alle taken binnen dit project worden ook verwijderd.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Annuleren</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                      Verwijderen
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
+          </div>
 
-            <CardContent className="space-y-4">
-              <p className="text-sm">{project.description}</p>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
-                <div>
-                  <h3 className="text-sm font-medium mb-1">Klant</h3>
-                  <p className="text-sm">{project.client || "Geen klant"}</p>
-                </div>
-
-                <div>
-                  <h3 className="text-sm font-medium mb-1">Deadline</h3>
-                  <div className="flex items-center text-sm">
-                    <CalendarIcon className="h-4 w-4 mr-2 text-muted-foreground" />
-                    {project.deadline ? format(new Date(project.deadline), "dd-MM-yyyy") : "Geen deadline"}
-                  </div>
-                </div>
-
-                <div>
-                  <h3 className="text-sm font-medium mb-1">Startdatum</h3>
-                  <p className="text-sm">{format(project.startDate, "dd-MM-yyyy")}</p>
-                </div>
-
-                <div>
-                  <h3 className="text-sm font-medium mb-1">Einddatum</h3>
-                  <p className="text-sm">{format(project.endDate, "dd-MM-yyyy")}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="flex-1">
-          <Tabs defaultValue="tasks">
-            <TabsList className="w-full">
-              <TabsTrigger value="tasks" className="flex-1">Taken</TabsTrigger>
-              <TabsTrigger value="add-task" className="flex-1">Nieuwe Taak</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="tasks" className="pt-4">
-              <ProjectTaskList tasks={project.tasks} projectId={project.id} />
-            </TabsContent>
-
-            <TabsContent value="add-task" className="pt-4">
+          {/* Content grid: 2/3 info + 1/3 sidebar */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Left column: project info */}
+            <div className="lg:col-span-2 space-y-6">
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg">Nieuwe taak toevoegen</CardTitle>
-                  <CardDescription>
-                    Voeg een manuele taak toe aan dit project
-                  </CardDescription>
+                  <div className="flex items-start justify-between gap-2">
+                    <CardTitle className="text-2xl">{project.title}</CardTitle>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="secondary">
+                        {state.projectTypeConfigs[project.type]?.name ?? project.type}
+                      </Badge>
+                      <Badge>{project.status}</Badge>
+                    </div>
+                  </div>
                 </CardHeader>
                 <CardContent>
-                  <form onSubmit={handleAddTask} className="space-y-4">
-                    <div>
-                      <label htmlFor="taskTitle" className="text-sm font-medium mb-1 block">
-                        Titel
-                      </label>
-                      <Input
-                        id="taskTitle"
-                        value={newTaskTitle}
-                        onChange={(e) => setNewTaskTitle(e.target.value)}
-                        placeholder="Voer een titel in"
-                        required
-                      />
+                  <p className="text-sm text-muted-foreground mb-6">{project.description}</p>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="flex items-center gap-3">
+                      <Users2 className="h-4 w-4 text-muted-foreground shrink-0" />
+                      <div>
+                        <p className="text-xs text-muted-foreground">Klant</p>
+                        <p className="text-sm">{project.client || "Geen klant"}</p>
+                      </div>
                     </div>
 
-                    <div>
-                      <label htmlFor="taskDescription" className="text-sm font-medium mb-1 block">
-                        Omschrijving
-                      </label>
-                      <Textarea
-                        id="taskDescription"
-                        value={newTaskDescription}
-                        onChange={(e) => setNewTaskDescription(e.target.value)}
-                        placeholder="Voer een omschrijving in"
-                        rows={4}
-                      />
+                    <div className="flex items-center gap-3">
+                      <CalendarIcon className="h-4 w-4 text-muted-foreground shrink-0" />
+                      <div>
+                        <p className="text-xs text-muted-foreground">Deadline</p>
+                        <p className="text-sm">
+                          {project.deadline ? format(new Date(project.deadline), "dd-MM-yyyy") : "Geen deadline"}
+                        </p>
+                      </div>
                     </div>
 
-                    <div className="flex justify-end">
-                      <Button type="submit">
-                        <Plus className="h-4 w-4 mr-2" />
-                        Taak toevoegen
-                      </Button>
+                    <div className="flex items-center gap-3">
+                      <CalendarIcon className="h-4 w-4 text-muted-foreground shrink-0" />
+                      <div>
+                        <p className="text-xs text-muted-foreground">Startdatum</p>
+                        <p className="text-sm">{format(project.startDate, "dd-MM-yyyy")}</p>
+                      </div>
                     </div>
-                  </form>
+
+                    <div className="flex items-center gap-3">
+                      <CalendarIcon className="h-4 w-4 text-muted-foreground shrink-0" />
+                      <div>
+                        <p className="text-xs text-muted-foreground">Einddatum</p>
+                        <p className="text-sm">{format(project.endDate, "dd-MM-yyyy")}</p>
+                      </div>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
-            </TabsContent>
-          </Tabs>
+            </div>
+
+            {/* Right column: tasks */}
+            <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between gap-2">
+                    <CardTitle className="text-lg">
+                      Taken ({project.tasks.length})
+                    </CardTitle>
+                    <Button size="sm" onClick={() => setAddTaskOpen(true)}>
+                      <Plus className="h-4 w-4 mr-1" />
+                      Toevoegen
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <ProjectTaskList tasks={project.tasks} projectId={project.id} />
+                </CardContent>
+              </Card>
+            </div>
+          </div>
         </div>
-      </div>
+      </main>
+
+      <footer className="border-t py-4 text-center text-sm text-muted-foreground">
+        <div className="container">
+          © 2025 Moeyersons - Building the difference on wheels
+        </div>
+      </footer>
 
       {/* Edit Project Dialog */}
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
@@ -362,6 +354,51 @@ export default function ProjectDetail() {
                 Annuleren
               </Button>
               <Button type="submit">Opslaan</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Task Dialog */}
+      <Dialog open={addTaskOpen} onOpenChange={setAddTaskOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Nieuwe taak toevoegen</DialogTitle>
+            <DialogDescription>
+              Voeg een manuele taak toe aan dit project
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleAddTask} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="taskTitle">Titel</Label>
+              <Input
+                id="taskTitle"
+                value={newTaskTitle}
+                onChange={(e) => setNewTaskTitle(e.target.value)}
+                placeholder="Voer een titel in"
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="taskDescription">Omschrijving</Label>
+              <Textarea
+                id="taskDescription"
+                value={newTaskDescription}
+                onChange={(e) => setNewTaskDescription(e.target.value)}
+                placeholder="Voer een omschrijving in"
+                rows={4}
+              />
+            </div>
+
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setAddTaskOpen(false)}>
+                Annuleren
+              </Button>
+              <Button type="submit">
+                <Plus className="h-4 w-4 mr-2" />
+                Taak toevoegen
+              </Button>
             </DialogFooter>
           </form>
         </DialogContent>
