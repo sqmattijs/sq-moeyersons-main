@@ -295,7 +295,7 @@ export default function ProjectTypesManager() {
               Nieuw Type
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[500px]">
+          <DialogContent className={editingType ? "sm:max-w-[700px]" : "sm:max-w-[500px]"}>
             <DialogHeader>
               <DialogTitle>
                 {editingType ? "Project Type Bewerken" : "Nieuw Project Type"}
@@ -308,7 +308,7 @@ export default function ProjectTypesManager() {
               </DialogDescription>
             </DialogHeader>
 
-            <div className="grid gap-4 py-4">
+            <div className="space-y-4 py-4">
               <div className="grid grid-cols-4 items-center gap-4">
                 <label htmlFor="typeKey" className="text-right text-sm">
                   Type Sleutel
@@ -337,43 +337,40 @@ export default function ProjectTypesManager() {
               </div>
 
               {editingType && (
-                <div className="grid grid-cols-4 items-start gap-4 mt-4">
-                  <div className="text-right text-sm pt-2">
-                    Standaard Taken
+                <div className="space-y-3 pt-2">
+                  <div className="flex justify-between items-center">
+                    <h4 className="text-sm font-medium">Standaard Taken</h4>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setIsTaskModalOpen(true)}
+                    >
+                      <Plus className="h-3 w-3 mr-1" />
+                      Taak toevoegen
+                    </Button>
                   </div>
-                  <div className="col-span-3 border rounded-md p-3">
-                    <div className="flex justify-between items-center mb-3">
-                      <h4 className="text-sm font-medium">Taken voor dit project type</h4>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => setIsTaskModalOpen(true)}
-                      >
-                        <Plus className="h-3 w-3 mr-1" />
-                        Taak toevoegen
-                      </Button>
-                    </div>
 
+                  <div className="border rounded-md max-h-[400px] overflow-y-auto">
                     {tasks[editingType]?.length > 0 ? (
                       <Table>
                         <TableHeader>
                           <TableRow>
-                            <TableHead>Volgorde</TableHead>
+                            <TableHead className="w-16"></TableHead>
                             <TableHead>Taak</TableHead>
-                            <TableHead>Duur</TableHead>
+                            <TableHead className="w-24">Duur</TableHead>
                             <TableHead>Afhankelijkheden</TableHead>
-                            <TableHead></TableHead>
+                            <TableHead className="w-10"></TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
                           {tasks[editingType].map((task, index) => (
                             <TableRow key={index}>
-                              <TableCell className="w-20">
-                                <div className="flex gap-1">
+                              <TableCell className="py-2">
+                                <div className="flex gap-0.5">
                                   <Button
                                     variant="ghost"
                                     size="icon"
-                                    className="h-7 w-7"
+                                    className="h-6 w-6"
                                     onClick={() => moveTask(editingType, index, index - 1)}
                                     disabled={index === 0}
                                   >
@@ -382,7 +379,7 @@ export default function ProjectTypesManager() {
                                   <Button
                                     variant="ghost"
                                     size="icon"
-                                    className="h-7 w-7"
+                                    className="h-6 w-6"
                                     onClick={() => moveTask(editingType, index, index + 1)}
                                     disabled={index === tasks[editingType].length - 1}
                                   >
@@ -390,42 +387,38 @@ export default function ProjectTypesManager() {
                                   </Button>
                                 </div>
                               </TableCell>
-                              <TableCell>
-                                <div>
-                                  <div className="font-medium">{task.title}</div>
-                                  <div className="text-xs text-muted-foreground">{task.description}</div>
-                                </div>
+                              <TableCell className="py-2">
+                                <div className="font-medium text-sm">{task.title}</div>
+                                <div className="text-xs text-muted-foreground truncate max-w-[200px]">{task.description}</div>
                               </TableCell>
-                              <TableCell>
+                              <TableCell className="py-2">
                                 {task.duration ? (
-                                  <Badge variant="outline">
+                                  <span className="text-xs text-muted-foreground whitespace-nowrap">
                                     {task.duration.value} {task.duration.unit}
-                                  </Badge>
+                                  </span>
                                 ) : (
-                                  <Badge variant="outline">Niet ingesteld</Badge>
+                                  <span className="text-xs text-muted-foreground">-</span>
                                 )}
                               </TableCell>
-                              <TableCell>
-                                <div className="flex items-center gap-2">
+                              <TableCell className="py-2">
+                                <div className="flex items-center gap-1">
                                   {task.dependencies?.length > 0 ? (
                                     <div className="flex flex-wrap gap-1">
                                       {task.dependencies.map((depIndex: number) => (
                                         <Badge
                                           key={depIndex}
                                           variant="secondary"
-                                          className="flex items-center gap-1"
+                                          className="text-xs px-1.5 py-0 h-5 gap-1"
                                         >
-                                          <span className="max-w-[100px] truncate">
+                                          <span className="max-w-[80px] truncate">
                                             {tasks[editingType][depIndex]?.title || `Taak ${depIndex + 1}`}
                                           </span>
-                                          <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            className="h-4 w-4 ml-1"
+                                          <button
+                                            className="hover:text-destructive"
                                             onClick={() => removeDependency(index, depIndex)}
                                           >
-                                            <Trash2 className="h-3 w-3" />
-                                          </Button>
+                                            <Trash2 className="h-2.5 w-2.5" />
+                                          </button>
                                         </Badge>
                                       ))}
                                     </div>
@@ -435,20 +428,21 @@ export default function ProjectTypesManager() {
                                   <Button
                                     variant="ghost"
                                     size="icon"
-                                    className="h-6 w-6"
+                                    className="h-5 w-5 shrink-0"
                                     onClick={() => openDependencyModal(index)}
                                   >
                                     <Link className="h-3 w-3" />
                                   </Button>
                                 </div>
                               </TableCell>
-                              <TableCell>
+                              <TableCell className="py-2">
                                 <Button
                                   variant="ghost"
                                   size="icon"
+                                  className="h-6 w-6"
                                   onClick={() => handleRemoveTask(editingType, index)}
                                 >
-                                  <Trash2 className="h-4 w-4 text-red-500" />
+                                  <Trash2 className="h-3.5 w-3.5 text-red-500" />
                                 </Button>
                               </TableCell>
                             </TableRow>
@@ -456,7 +450,7 @@ export default function ProjectTypesManager() {
                         </TableBody>
                       </Table>
                     ) : (
-                      <div className="text-sm text-muted-foreground text-center py-4">
+                      <div className="text-sm text-muted-foreground text-center py-6">
                         Geen taken toegevoegd
                       </div>
                     )}
