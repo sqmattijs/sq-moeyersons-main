@@ -8,7 +8,7 @@ import { AppProvider } from "@/store/AppContext";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import ProjectDetail from "./components/Projects/ProjectDetail";
-import AdminView from "./components/Admin/AdminView";
+import Admin from "./pages/Admin";
 import GlobalSearch from "./components/Search/GlobalSearch";
 
 const queryClient = new QueryClient();
@@ -24,7 +24,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/project/:id" element={<ProjectDetail />} />
-            <Route path="/admin" element={<AdminView />} />
+            <Route path="/admin" element={<Admin />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

@@ -11,7 +11,7 @@ export default function AdminView() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h2 className="text-2xl font-bold">Administratie</h2>
       </div>
 
@@ -19,7 +19,7 @@ export default function AdminView() {
         defaultValue="project-types"
         value={activeTab}
         onValueChange={(value) => setActiveTab(value as any)}
-        className="space-y-4"
+        className="space-y-6"
       >
         <TabsList>
           <TabsTrigger value="project-types">Project Types</TabsTrigger>
